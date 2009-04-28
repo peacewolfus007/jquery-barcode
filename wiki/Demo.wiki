@@ -1,13 +1,21 @@
-#summary One-sentence summary of this page.
-
-= Introduction =
-
-Add your content here.
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+<script src="http://jqueryjs.googlecode.com/files/jquery-1.3.2.js"></script>
+<script src="jquery.barcode.js"></script>
+<script>
+	$(document).ready(function(){
+			$('.barcode39') .barcode({code:'code39'});
+			$('.barcodeI25').barcode({code:'I25'}).height("20px");
+		}
+	);
+</script>
+<div class="barcode39" style="width:473px;height:100px;padding-left:15px;">
+	WIKIPEDIA
+</div>
+<br/>
+<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Code_3_of_9.svg/262px-Code_3_of_9.svg.png" style="width:500px;height:100px"/>
+<hr/>
+<div class="barcodeI25" style="width:430px;height:100px;padding-left:35px;">
+	19980726
+</div>
+<br/>
+<img src="http://www.adams1.com/gif/i25pix.gif" style="width:500px;height:100px"/>
+<hr/>		
