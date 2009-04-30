@@ -78,8 +78,6 @@
 
 	$.barcode.codes.I25 = {};
 	$.barcode.codes.I25.plain = {};
-	$.barcode.codes.I25.plain['START']  = 'wwwwwwwwwwbwbw';
-	$.barcode.codes.I25.plain['END']  = 'Bwbwwwwwwwwww';
 	$.barcode.codes.I25.plain['0'] = 'bbBBb';
 	$.barcode.codes.I25.plain['1'] = 'BbbbB';
 	$.barcode.codes.I25.plain['2'] = 'bBbbB';
@@ -91,7 +89,36 @@
 	$.barcode.codes.I25.plain['8'] = 'BbbBb';
 	$.barcode.codes.I25.plain['9'] = 'bBbBb';
 
+	
 	/* Cache BMP translation codes*/
+	$.barcode.codes.I25.BMP = {};
+	for (var f in $.barcode.codes.I25.plain){
+		for (var s in $.barcode.codes.I25.plain)
+		{
+			var encoded = '';
+			var code1 = $.barcode.codes.I25.plain[f];
+			var code2 = $.barcode.codes.I25.plain[s].replace(/b/g,"w").replace(/B/g, "W");
+			for(var i2 = 0; i2 < 5; i2++){
+				encoded += code1.charAt(i2) + code2.charAt(i2);
+			}
+			encoded = encoded.replace(/w/g, '\x01\x01\x01');
+			encoded = encoded.replace(/W/g, '\x01\x01\x01\x01\x01\x01\x01\x01\x01');
+			encoded = encoded.replace(/b/g, '\x00\x00\x00');
+			encoded = encoded.replace(/B/g, '\x00\x00\x00\x00\x00\x00\x00\x00\x00');
+			$.barcode.codes.I25.BMP[f+s] = encoded;
+		}		
+	};
+	/*Add Special CODES (not encoded interleaved)*/
+	$.barcode.codes.I25.plain['START']  = 'wwwwwwwwwwbwbw';
+	$.barcode.codes.I25.plain['END']  = 'Bwbwwwwwwwwww';
+	
+	$.barcode.codes.I25.BMP['START']  = $.barcode.codes.I25.plain['START'].replace(/w/g, '\x01\x01\x01');
+	$.barcode.codes.I25.BMP['START']  = $.barcode.codes.I25.plain['START'].replace(/b/g, '\x00\x00\x00');
+
+	$.barcode.codes.I25.BMP['END'] = $.barcode.codes.I25.plain['END'].replace(/w/g, '\x01\x01\x01');
+	$.barcode.codes.I25.BMP['END'] = $.barcode.codes.I25.BMP['END'].replace(/b/g, '\x00\x00\x00');
+	$.barcode.codes.I25.BMP['END'] = $.barcode.codes.I25.BMP['END'].replace(/B/g, '\x00\x00\x00\x00\x00\x00\x00\x00\x00');
+	
 	$.barcode.codes.code39.BMP = {};
 	for (var x in $.barcode.codes.code39.plain){
 		var tcodes = $.barcode.codes.code39.plain[x];
@@ -126,28 +153,16 @@
 						break;
 					case 'I25' :
 						var code = $.trim($(this).html());
-					    encoded = 	$.barcode.codes.I25.plain['START'];
-
 						if(code.length % 2 == 1)
 							code = '0' + code;
-						
-						
-						for(var i = 0; i < code.length; i+=2){
-							var code1 = $.barcode.codes.I25.plain[code.charAt(i)];
-							var code2 = $.barcode.codes.I25.plain[code.charAt(i+1)].replace(/b/g,"w").replace(/B/g, "W");
-							for(var i2 = 0; i2 < 5; i2++){
-								encoded += code1.charAt(i2) + code2.charAt(i2);
-							}
-						}
-						encoded += 	$.barcode.codes.I25.plain['END'];
-						encoded = encoded.replace(/w/g, '\x01\x01\x01');
-						encoded = encoded.replace(/W/g, '\x01\x01\x01\x01\x01\x01\x01\x01\x01');
-						encoded = encoded.replace(/b/g, '\x00\x00\x00');
-						encoded = encoded.replace(/B/g, '\x00\x00\x00\x00\x00\x00\x00\x00\x00');
+					    encoded = 	$.barcode.codes.I25.BMP['START'];
+						for(var i = 0; i < code.length; i+=2)
+							encoded += $.barcode.codes.I25.BMP[code.charAt(i)+code.charAt(i+1)];
+						encoded += 	$.barcode.codes.I25.BMP['END'];
 						break;
 					default : 
 						alert("Code" + settings.code + ' not implemented');
-						return;
+						return '';
 				};
 				var img = $("<img />").width("100%").height("100%").attr("src", $.barcode._createBmp([encoded], $.barcode.palette));
 				$(this).html("").append(img);
